@@ -35,8 +35,8 @@ public class Employee {
     @Column(value = "phone")
     private String phone;
 
-    @Column(value = "departmentId")
-    private Long departmentId;
+
+    private Department department;
 
 
 

@@ -40,6 +40,7 @@ public class EmployeeServiceImpl implements EmployeeService{
 
     @Override
     public Mono<Employee> editEmployee(Long id, Employee employee) {
+
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new FileNotFoundException("Employee not found with ID: " + id)))
                 .flatMap(existingEmployee -> {
@@ -49,7 +50,7 @@ public class EmployeeServiceImpl implements EmployeeService{
                     existingEmployee.setFirstName(employee.getFirstName());
                     existingEmployee.setLastName(employee.getLastName());
                     existingEmployee.setPhone(employee.getPhone());
-                    existingEmployee.setDepartmentId(employee.getDepartmentId());
+                    existingEmployee.setDepartment(employee.getDepartment());
 
                     return repository.save(existingEmployee);
                 });
