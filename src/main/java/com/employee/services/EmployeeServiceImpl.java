@@ -1,16 +1,19 @@
 package com.employee.services;
 
+import com.employee.exceptions.EmployeeNotFoundException;
 import com.employee.models.Employee;
 import com.employee.repositories.EmployeeRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.FileNotFoundException;
-import java.util.Optional;
 
 @AllArgsConstructor
 @Service
@@ -24,7 +27,8 @@ public class EmployeeServiceImpl implements EmployeeService{
 
     public Mono<Employee> findEmployeeById(Long id) {
 
-        return repository.findById(id);
+        return repository.findById(id)
+                .switchIfEmpty(Mono.error(new EmployeeNotFoundException("Employee not found with ID: " + id)));
     }
 
     @Override
@@ -33,7 +37,7 @@ public class EmployeeServiceImpl implements EmployeeService{
             return repository.save(employee);
 
         }catch (DataIntegrityViolationException ex) {
-            throw new DataIntegrityViolationException(ex.getMessage());
+            throw new DataIntegrityViolationException("Employee exists with the email or phone number");
         }
 
     }
@@ -42,7 +46,7 @@ public class EmployeeServiceImpl implements EmployeeService{
     public Mono<Employee> editEmployee(Long id, Employee employee) {
 
         return repository.findById(id)
-                .switchIfEmpty(Mono.error(new FileNotFoundException("Employee not found with ID: " + id)))
+                .switchIfEmpty(Mono.error(new EmployeeNotFoundException("Employee not found with ID: " + id)))
                 .flatMap(existingEmployee -> {
                     // Update the existingEmployee with the new data
                     existingEmployee.setId(id);
@@ -50,12 +54,18 @@ public class EmployeeServiceImpl implements EmployeeService{
                     existingEmployee.setFirstName(employee.getFirstName());
                     existingEmployee.setLastName(employee.getLastName());
                     existingEmployee.setPhone(employee.getPhone());
-                    existingEmployee.setDepartment(employee.getDepartment());
+                    existingEmployee.setDepartmentId(employee.getDepartmentId());
 
                     return repository.save(existingEmployee);
                 });
     }
 
+    public Mono<Page<Employee>> getPaginatedEmployees(PageRequest pageRequest) {
+        return repository.findAllBy(pageRequest.withSort(Sort.by("firstName").descending()))
+                .collectList()
+                .zipWith(repository.count())
+                .map(t-> new PageImpl<>(t.getT1(), pageRequest, t.getT2()));
+    }
 
 
 }

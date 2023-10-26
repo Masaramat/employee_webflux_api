@@ -2,7 +2,10 @@ package com.employee.controllers;
 
 import com.employee.models.Employee;
 import com.employee.services.EmployeeService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -29,14 +32,20 @@ public class EmployeeController {
 
     @PostMapping("/employees")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Employee> createEmployee(@RequestBody Employee employee){
+    public Mono<Employee> createEmployee(@Valid @RequestBody Employee employee){
         return service.save(employee);
     }
 
     @PutMapping("/employee/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<Employee> updateEmployee(@PathVariable("id") Long id, @RequestBody Employee employee){
+    public Mono<Employee> updateEmployee(@PathVariable("id") Long id, @Valid @RequestBody Employee employee){
         return service.editEmployee(id, employee);
+    }
+
+    @GetMapping("employees/pages")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<Page<Employee>> getPaginatedEmployees(@RequestParam("page") int page, @RequestParam("size") int size){
+        return service.getPaginatedEmployees(PageRequest.of(page, size));
     }
 
 
