@@ -15,4 +15,6 @@ public interface EmployeeService {
     public Mono<Employee> editEmployee(Long id, Employee employee);
 
     public Mono<Page<Employee>> getPaginatedEmployees(PageRequest pageRequest);
+
+    public Mono<Void> deleteEmployee(Long id);
 }

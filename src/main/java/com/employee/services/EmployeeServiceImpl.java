@@ -60,11 +60,18 @@ public class EmployeeServiceImpl implements EmployeeService{
                 });
     }
 
+
+
     public Mono<Page<Employee>> getPaginatedEmployees(PageRequest pageRequest) {
         return repository.findAllBy(pageRequest.withSort(Sort.by("firstName").descending()))
                 .collectList()
                 .zipWith(repository.count())
                 .map(t-> new PageImpl<>(t.getT1(), pageRequest, t.getT2()));
+    }
+
+    @Override
+    public Mono<Void> deleteEmployee(Long id) {
+        return repository.deleteById(id);
     }
 
 

@@ -48,6 +48,12 @@ public class EmployeeController {
         return service.getPaginatedEmployees(PageRequest.of(page, size));
     }
 
+    @DeleteMapping("employees/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public Mono<Void> deleteEmployee(@PathVariable("id") Long id){
+        return service.deleteEmployee(id);
+    }
+
 
 
 }

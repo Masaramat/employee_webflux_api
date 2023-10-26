@@ -12,9 +12,7 @@ import org.springframework.r2dbc.connection.init.ResourceDatabasePopulator;
 import org.springframework.web.reactive.config.EnableWebFlux;
 
 @SpringBootApplication
-@EnableR2dbcRepositories(basePackages = "com.employee.repositories")
 @EnableWebFlux
-@ComponentScan("com.employee")
 public class EmployeeWebfluxApiApplication {
 
 	public static void main(String[] args) {
