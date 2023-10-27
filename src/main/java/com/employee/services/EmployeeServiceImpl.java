@@ -1,7 +1,9 @@
 package com.employee.services;
 
+import com.employee.exceptions.DepartmentNotFoundException;
 import com.employee.exceptions.EmployeeNotFoundException;
 import com.employee.models.Employee;
+import com.employee.repositories.DepartmentRepository;
 import com.employee.repositories.EmployeeRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -20,6 +22,7 @@ import reactor.core.publisher.Mono;
 @Transactional
 public class EmployeeServiceImpl implements EmployeeService{
     private final EmployeeRepository repository;
+    private final DepartmentRepository departmentRepository;
 
     public Flux<Employee> getAllEmployees(){
         return repository.findAll();
@@ -34,7 +37,12 @@ public class EmployeeServiceImpl implements EmployeeService{
     @Override
     public Mono<Employee> save(Employee employee) {
         try{
-            return repository.save(employee);
+
+            return departmentRepository.findById(employee.getDepartmentId())
+                    .switchIfEmpty(Mono.error(new DepartmentNotFoundException("Department does not exists.")))
+                    .flatMap(dept-> {
+                        return repository.save(employee);
+                    });
 
         }catch (DataIntegrityViolationException ex) {
             throw new DataIntegrityViolationException("Employee exists with the email or phone number");

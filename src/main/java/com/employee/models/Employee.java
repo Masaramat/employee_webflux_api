@@ -41,6 +41,4 @@ public class Employee {
     @Column(value = "departmentId")
     private Long departmentId;
 
-
-
 }
