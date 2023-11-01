@@ -5,6 +5,10 @@ import com.employee.exceptions.EmployeeNotFoundException;
 import com.employee.models.Employee;
 import com.employee.repositories.DepartmentRepository;
 import com.employee.repositories.EmployeeRepository;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -15,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Set;
 
 
 @AllArgsConstructor
@@ -40,9 +46,7 @@ public class EmployeeServiceImpl implements EmployeeService{
 
             return departmentRepository.findById(employee.getDepartmentId())
                     .switchIfEmpty(Mono.error(new DepartmentNotFoundException("Department does not exists.")))
-                    .flatMap(dept-> {
-                        return repository.save(employee);
-                    });
+                    .flatMap(dept -> repository.save(employee));
 
         }catch (DataIntegrityViolationException ex) {
             throw new DataIntegrityViolationException("Employee exists with the email or phone number");
@@ -81,6 +85,14 @@ public class EmployeeServiceImpl implements EmployeeService{
     public Mono<Void> deleteEmployee(Long id) {
         return repository.deleteById(id);
     }
+
+
+
+
+
+
+
+
 
 
 }
