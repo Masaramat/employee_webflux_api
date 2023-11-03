@@ -5,10 +5,6 @@ import com.employee.exceptions.EmployeeNotFoundException;
 import com.employee.models.Employee;
 import com.employee.repositories.DepartmentRepository;
 import com.employee.repositories.EmployeeRepository;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -19,8 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.Set;
 
 
 @AllArgsConstructor
@@ -74,11 +68,18 @@ public class EmployeeServiceImpl implements EmployeeService{
 
 
 
-    public Mono<Page<Employee>> getPaginatedEmployees(PageRequest pageRequest) {
-        return repository.findAllBy(pageRequest.withSort(Sort.by("firstName").descending()))
+    public Mono<Page<Employee>> getPaginatedEmployees(int pageNo, int pageSize) {
+        Sort sort = Sort.by(Sort.Order.asc("id")); // Define the sorting criteria
+        PageRequest pageRequest = PageRequest.of(pageNo, pageSize);
+
+
+        return repository.findAll(pageRequest)
                 .collectList()
-                .zipWith(repository.count())
-                .map(t-> new PageImpl<>(t.getT1(), pageRequest, t.getT2()));
+                .flatMap(employeeList -> {
+                    return repository.count()  // Count all records
+                            .map(totalCount -> new PageImpl<>(employeeList, pageRequest, totalCount));
+                });
+
     }
 
     @Override

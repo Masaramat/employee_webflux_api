@@ -1,5 +1,7 @@
 package com.employee.models;
 
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -40,5 +42,6 @@ public class Employee {
 
     @Column(value = "departmentId")
     private Long departmentId;
+
 
 }

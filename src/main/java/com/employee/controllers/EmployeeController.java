@@ -55,7 +55,7 @@ public class EmployeeController {
     @GetMapping("employees/pages")
     @ResponseStatus(HttpStatus.OK)
     public Mono<Page<Employee>> getPaginatedEmployees(@RequestParam("page") int page, @RequestParam("size") int size){
-        return service.getPaginatedEmployees(PageRequest.of(page, size));
+        return service.getPaginatedEmployees(page, size);
     }
 
     @DeleteMapping("employees/{id}")
